@@ -1,0 +1,235 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <unordered_map>
+
+struct User {
+    int userID;
+    int age;
+    std::string gender;
+    std::string country;
+    std::vector<int> likedMovies;
+};
+
+struct Movie {
+    int movieID;
+    std::string movieName;
+    double movieRating;
+    std::string leadActor;
+};
+
+std::string calculateAgeGroup(int age) {
+    if (age >= 14 && age <= 20) {
+        return "14-20 years";
+    } else if (age > 20 && age <= 30) {
+        return "21-30 years";
+    } else if (age > 30 && age <= 40) {
+        return "31-40 years";
+    } else if (age > 40 && age <= 50) {
+        return "41-50 years";
+    } else if (age > 50 && age <= 60) {
+        return "51-60 years";
+    } else if (age > 60 && age <= 70) {
+        return "61-70 years";
+    } else if (age > 70 && age <= 80) {
+        return "71-80 years";
+    } else if (age > 80 && age <= 90) {
+        return "81-90 years";
+    } else if (age > 90 && age <= 100) {
+        return "91-100 years";
+    } else {
+        return "Unknown";
+    }
+}
+
+double calculateMatchPercentage(const User& user, const std::string& ageGroup, const std::string& country, const std::string& gender) {
+    const double ageWeight = 0.5;
+    const double countryWeight = 0.3;
+    const double genderWeight = 0.2;
+
+    double matchPercentage = 0.0;
+
+    if (ageGroup == calculateAgeGroup(user.age)) {
+        matchPercentage += ageWeight * 100.0;
+    }
+
+    if (user.country == country) {
+        matchPercentage += countryWeight * 100.0;
+    }
+
+    if (user.gender == gender) {
+        matchPercentage += genderWeight * 100.0;
+    }
+
+    return matchPercentage;
+}
+
+bool compareByRating(const Movie& a, const Movie& b) {
+    return a.movieRating > b.movieRating;
+}
+
+int main() {
+    std::vector<User> users = {
+        {1, 25, "Male", "USA", {1, 2, 3}},
+        {2, 30, "Female", "UK", {4,5,6}},
+        {3,27, "Female", "UK", {7,8,9}},
+        {4, 18, "Female", "India", {10,11,12}},
+        {5, 47, "Female", "USA", {13,14,15}},
+        {6, 57, "Female", "India", {16,17,18}},
+        {7, 68, "Female", "UK", {19,20,21}},
+        {8, 75, "Female", "USA", {22,23,24}},
+        {9, 89, "Female", "UK", {25,26,27}},
+        {10, 35, "Male", "UK", {28,29,30}},
+        {11, 45, "Male", "USA", {31,32,33}},
+        {12, 55, "Male", "UK", {34,35,36}},
+        {13, 65, "Male", "India", {37,38,39}},
+        {14, 75, "Male", "USA", {40,41,42}},
+        {15, 89, "Male", "India", {43,44,45}},
+        {16, 21 , "Male", "USA", {1,2,3 }},
+        {17, 23 , "Female", "UK", {7,8,9}},
+        {18, 67 , "Male", "USA", {10,11,12 }},
+        {19, 89 , "Female", "UK", {13,14,15 }},
+        {20, 27 , "Male", "USA", {16,17,18 }},
+        {21, 24 , "Female", "UK", {19,20,21 }},
+        {22, 11 , "Male", "USA", {22,23,24}},
+        {23, 76 , "Female", "UK", {25,26,27}},
+        {24, 57 , "Male", "USA", {28,29,30}},
+        {25, 76 , "Female", "UK", {31,32,33}},
+        {26, 31 , "Male", "USA", {34,35,36}},
+        {27, 43 , "Female", "UK", {37,38,39 }},
+        {28, 17 , "Male", "USA", {40,41,42 }},
+        {29, 39 , "Female", "UK", {43,44,45 }},
+        {30, 30 , "Male", "USA", {1,2,3 }},
+        {31, 20, "Male", "USA", {4,5,6}},
+        {32, 76, "Female", "UK", {7,8,9}},
+        {33, 28, "Male", "India", {10,11,12}},
+        {34, 42, "Female", "USA", {5,7,17}},
+        {35, 19, "Male", "UK", {13, 14, 15}},
+        {36, 37, "Female", "India", {16, 17, 18}},
+        {37, 92, "Male", "USA", {19, 20, 21}},
+        {38, 31, "Female", "UK", {22, 23, 24}},
+        {39, 45, "Male", "India", {25, 26, 27}},
+        {40, 88, "Female", "USA", {28, 29, 30}},
+        {41, 35, "Male", "UK", {31, 32, 33}},
+        {42, 40, "Female", "India", {34, 35, 36}},
+        {43, 57, "Male", "USA", {37, 38, 39}},
+        {44, 30, "Female", "UK", {40, 41, 42}},
+        {45, 44, "Male", "India", {43, 44, 45}}
+
+    };
+
+    std::vector<Movie> movies = {
+          {1, "Kabhi Khushi Kabhi gham", 8.9, "Shahrukh Khan,Kajol"},
+        {2, "Koi Mil Gaya", 7.2, "Shahrukh Khan,kajol,Rani Mukherjee"},
+        {3, "Sooryavansham", 8.0, "Amitabh Bachan"},
+        {4, "3 Idiots", 7.5, "Amir Khan,Kareena Kapoor"},
+        {5, "Drishyam", 6.5, "Ajay Devgan"},
+        {6, "Band Baaja Baarat", 4.7, "Ranveer Singh,Anushka Sharma"},
+        {7, "Table no.21", 9.0, "Rajeev Khandelwal"},
+        {8, "28 Days later", 8.6, "Killian Murphy"},
+        {9, "Zulu", 5.9, "Stanley Baker"},
+        {10, "To all the boys I have met before", 7.2, "Noah centenio"},
+        {11, "The midnight sun", 8.7, "Bella Thorne"},
+        {12, "Fish Tank", 6.7, "Katie Jarvis"},
+        {13, "Orlando", 5.8, "Tilda Swinton"},
+        {14, "Oliver", 7.9, "Ron Moody"},
+        {15, "Inception", 8.7, "Leonardo Dicaprio"},
+        {16, "Piku", 6.5, "Deepika Padukone , Irrfan Khan"},
+        {17, "Udta Punjab", 7.2, "Alia Bhatt , Shahid Kapoor"},
+        {18, "Article 15", 8.0, "Ayushmann Khurrana"},
+        {19, "LootCase", 7.5, "Rasika Dugal"},
+        {20, "Singham", 8.5, "Ajay Devgan , Kajal Aggarwal"},
+        {21, "Badla", 8.2, "Taapsee Pannu"},
+        {22, "Krish 3", 9.0, "Hrithik Roshan , Priyanka Chopra"},
+        {23, "Monster House", 7.5, "Steve Buscemi"},
+        {24, "The Adventures", 8.5, "John DiMaggio"},
+        {25, "Through my Window : Across the Sea", 7.2, "Clara Galle , Julio Pe a"},
+        {26, "Dad Wanted", 8.8, "Lieutenant Hannah Stone"},
+        {27, "Born in Gaza", 7.9, "Walaa Eltiti , Yazeed Faruja"},
+        {28, "Veronica", 9.0, "Sandra Escacena , Bruna Gonz lez"},
+        {29, "Through my Mind", 7.2, "Zhang Yao"},
+        {30, "LoveAajKal",7.0,"Saif Ali Khan , Deepika Padukone"},
+        {31, "The revenant", 8.8, "Leonardo DiCaprio"},
+        {32, "Pulp Fiction", 8.9, "John Travolta"},
+        {33, "The Shawshank Redemption", 9.3, "Tim Robbins"},
+        {34, "The Dark Knight", 9.0, "Christian Bale"},
+        {35, "The Matrix", 8.7, "Keanu Reeves"},
+        {36, "Fight Club", 8.8, "Edward Norton"},
+        {37, "Forrest Gump", 8.8, "Tom Hanks"},
+        {38, "The Lord of the Rings", 8.9, "Elijah Wood"},
+        {39, "Gladiator", 8.5, "Russell Crowe"},
+        {40, "The Godfather", 9.2, "Marlon Brando"},
+        {41, "Titanic", 7.8, "Leonardo DiCaprio, Kate Winslet"},
+        {42, "The Silence of the Lambs", 8.6, "Jodie Foster, Anthony Hopkins"},
+        {43, "Inglourious Basterds", 8.3, "Brad Pitt"},
+        {44, "The Social Network", 7.7, "Jesse Eisenberg, Andrew Garfield"},
+        {45, "Avatar", 7.8, "Sam Worthington, Zoe Saldana"}
+
+    };
+
+    std::string name, password;
+    int age;
+    std::string gender, country;
+    User currentUser;
+    int choice;
+
+    std::cout << "1. Register\n2. Login\nChoose an option: ";
+    std::cin >> choice;
+
+    if (choice == 1) {
+        std::cout << "Enter your username: ";
+        std::cin >> name;
+        std::cout << "Enter your password: ";
+        std::cin >> password;
+        std::cout << "Enter your age: ";
+        std::cin >> age;
+        std::cout << "Enter your gender: ";
+        std::cin >> gender;
+        std::cout << "Enter your country: ";
+        std::cin >> country;
+
+        currentUser = {users.size() + 1, age, gender, country, {}};
+        users.push_back(currentUser);
+    } else if (choice == 2) {
+
+    }
+
+    std::string ageGroup = calculateAgeGroup(currentUser.age);
+    std::vector<Movie> recommendedMoviesList;
+
+    for (const User& user : users) {
+        if (user.userID != currentUser.userID) {
+            double matchPercentage = calculateMatchPercentage(user, ageGroup, currentUser.country, currentUser.gender);
+
+            if (matchPercentage >= 50) {
+                for (int movieID : user.likedMovies) {
+                    auto it = std::find_if(movies.begin(), movies.end(), [&movieID](const Movie& movie) {
+                        return movie.movieID == movieID;
+                    });
+
+                    if (it != movies.end()) {
+                        recommendedMoviesList.push_back(*it);
+                    }
+                }
+            }
+        }
+    }
+
+    std::sort(recommendedMoviesList.begin(), recommendedMoviesList.end(), compareByRating);
+    auto last = std::unique(recommendedMoviesList.begin(), recommendedMoviesList.end(), [](const Movie& a, const Movie& b) {
+        return a.movieID == b.movieID;
+    });
+    recommendedMoviesList.erase(last, recommendedMoviesList.end());
+
+
+    std::cout << "Top 5 Recommended Movies by Rating:\n";
+    for (int i = 0; i < 5 && i < recommendedMoviesList.size(); ++i) {
+        std::cout << "Movie Name: " << recommendedMoviesList[i].movieName << "\n";
+        std::cout << "Rating: " << recommendedMoviesList[i].movieRating << "\n";
+        std::cout << "Lead Actor: " << recommendedMoviesList[i].leadActor << "\n";
+        std::cout << "-----------------------\n";
+    }
+
+    return 0;
+}
